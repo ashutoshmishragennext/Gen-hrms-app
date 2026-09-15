@@ -1,0 +1,465 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:IA-{full_name}-{####}",
+ "creation": "2025-09-12 11:13:52.461321",
+ "custom": 1,
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_wmgv",
+  "amended_from",
+  "job_title",
+  "job_applicant",
+  "personal_information_section",
+  "full_name",
+  "email",
+  "phone_number",
+  "column_break_1",
+  "date_of_birth",
+  "gender",
+  "nationality",
+  "address_section",
+  "current_address",
+  "city",
+  "column_break_2",
+  "state",
+  "postal_code",
+  "country",
+  "education_section",
+  "current_education_level",
+  "institution_name",
+  "field_of_study",
+  "column_break_3",
+  "current_year",
+  "expected_graduation",
+  "gpa_cgpa",
+  "internship_details_section",
+  "preferred_department",
+  "internship_type",
+  "preferred_start_date",
+  "column_break_4",
+  "internship_duration",
+  "availability_hours",
+  "is_paid_internship",
+  "skills_experience_section",
+  "technical_skills",
+  "soft_skills",
+  "previous_experience",
+  "column_break_5",
+  "portfolio_url",
+  "github_url",
+  "linkedin_url",
+  "documents_section",
+  "resume",
+  "cover_letter",
+  "column_break_6",
+  "transcripts",
+  "additional_documents",
+  "additional_info_section",
+  "motivation",
+  "career_goals",
+  "column_break_7",
+  "how_did_you_hear",
+  "referral_name",
+  "additional_comments",
+  "status_section",
+  "application_status",
+  "application_date",
+  "column_break_8",
+  "reviewed_by",
+  "review_date",
+  "internal_notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_wmgv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Intern Application",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "job_title",
+   "fieldtype": "Link",
+   "label": "Job Title",
+   "options": "Job Opening"
+  },
+  {
+   "fieldname": "job_applicant",
+   "fieldtype": "Link",
+   "label": "Job Applicant",
+   "options": "Job Applicant"
+  },
+  {
+   "fieldname": "personal_information_section",
+   "fieldtype": "Section Break",
+   "label": "Personal Information"
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Full Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Email Address",
+   "options": "Email",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "phone_number",
+   "fieldtype": "Data",
+   "label": "Phone Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "date_of_birth",
+   "fieldtype": "Date",
+   "label": "Date of Birth"
+  },
+  {
+   "fieldname": "gender",
+   "fieldtype": "Select",
+   "label": "Gender",
+   "options": "Male\nFemale\nOther\nPrefer not to say"
+  },
+  {
+   "fieldname": "nationality",
+   "fieldtype": "Data",
+   "label": "Nationality"
+  },
+  {
+   "fieldname": "address_section",
+   "fieldtype": "Section Break",
+   "label": "Address"
+  },
+  {
+   "fieldname": "current_address",
+   "fieldtype": "Small Text",
+   "label": "Current Address",
+   "reqd": 1
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "State/Province"
+  },
+  {
+   "fieldname": "postal_code",
+   "fieldtype": "Data",
+   "label": "Postal Code"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country",
+   "reqd": 1
+  },
+  {
+   "fieldname": "education_section",
+   "fieldtype": "Section Break",
+   "label": "Education"
+  },
+  {
+   "fieldname": "current_education_level",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Current Education Level",
+   "options": "High School\nUndergraduate\nPostgraduate\nPhD\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "institution_name",
+   "fieldtype": "Data",
+   "label": "Institution Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "field_of_study",
+   "fieldtype": "Data",
+   "label": "Field of Study/Major",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "current_year",
+   "fieldtype": "Select",
+   "label": "Current Academic Year",
+   "options": "1st Year\n2nd Year\n3rd Year\n4th Year\n5th Year\nFinal Year"
+  },
+  {
+   "fieldname": "expected_graduation",
+   "fieldtype": "Date",
+   "label": "Expected Graduation Date"
+  },
+  {
+   "fieldname": "gpa_cgpa",
+   "fieldtype": "Data",
+   "label": "GPA/CGPA (if applicable)"
+  },
+  {
+   "fieldname": "internship_details_section",
+   "fieldtype": "Section Break",
+   "label": "Internship Details"
+  },
+  {
+   "fieldname": "preferred_department",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Preferred Department",
+   "options": "Software Development\nWeb Development\nMobile App Development\nData Science\nUI/UX Design\nDigital Marketing\nHuman Resources\nFinance\nOperations\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "internship_type",
+   "fieldtype": "Select",
+   "label": "Internship Type",
+   "options": "Full-time\nPart-time\nRemote\nHybrid",
+   "reqd": 1
+  },
+  {
+   "fieldname": "preferred_start_date",
+   "fieldtype": "Date",
+   "label": "Preferred Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "internship_duration",
+   "fieldtype": "Select",
+   "label": "Preferred Duration",
+   "options": "1 Month\n2 Months\n3 Months\n6 Months\n1 Year\nFlexible"
+  },
+  {
+   "fieldname": "availability_hours",
+   "fieldtype": "Data",
+   "label": "Available Hours per Week"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_paid_internship",
+   "fieldtype": "Check",
+   "label": "Looking for Paid Internship"
+  },
+  {
+   "fieldname": "skills_experience_section",
+   "fieldtype": "Section Break",
+   "label": "Skills & Experience"
+  },
+  {
+   "description": "List your programming languages, tools, frameworks, etc.",
+   "fieldname": "technical_skills",
+   "fieldtype": "Small Text",
+   "label": "Technical Skills"
+  },
+  {
+   "description": "Communication, leadership, problem-solving, etc.",
+   "fieldname": "soft_skills",
+   "fieldtype": "Small Text",
+   "label": "Soft Skills"
+  },
+  {
+   "description": "Describe any relevant work experience, projects, or previous internships",
+   "fieldname": "previous_experience",
+   "fieldtype": "Text",
+   "label": "Previous Work/Internship Experience"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "portfolio_url",
+   "fieldtype": "Data",
+   "label": "Portfolio/Website URL",
+   "options": "URL"
+  },
+  {
+   "fieldname": "github_url",
+   "fieldtype": "Data",
+   "label": "GitHub Profile URL",
+   "options": "URL"
+  },
+  {
+   "fieldname": "linkedin_url",
+   "fieldtype": "Data",
+   "label": "LinkedIn Profile URL",
+   "options": "URL"
+  },
+  {
+   "fieldname": "documents_section",
+   "fieldtype": "Section Break",
+   "label": "Documents"
+  },
+  {
+   "fieldname": "resume",
+   "fieldtype": "Attach",
+   "label": "Resume/CV",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cover_letter",
+   "fieldtype": "Attach",
+   "label": "Cover Letter"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transcripts",
+   "fieldtype": "Attach",
+   "label": "Academic Transcripts"
+  },
+  {
+   "description": "Certificates, recommendations, etc.",
+   "fieldname": "additional_documents",
+   "fieldtype": "Attach",
+   "label": "Additional Documents"
+  },
+  {
+   "fieldname": "additional_info_section",
+   "fieldtype": "Section Break",
+   "label": "Additional Information"
+  },
+  {
+   "description": "Tell us about your motivation and what you hope to learn",
+   "fieldname": "motivation",
+   "fieldtype": "Text",
+   "label": "Why do you want to intern with us?",
+   "reqd": 1
+  },
+  {
+   "description": "What are your short-term and long-term career aspirations?",
+   "fieldname": "career_goals",
+   "fieldtype": "Text",
+   "label": "Career Goals"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "how_did_you_hear",
+   "fieldtype": "Select",
+   "label": "How did you hear about us?",
+   "options": "Company Website\nJob Portal\nSocial Media\nUniversity Career Center\nReferral from Friend/Colleague\nProfessor Recommendation\nOther"
+  },
+  {
+   "fieldname": "referral_name",
+   "fieldtype": "Data",
+   "label": "Referral Name (if applicable)"
+  },
+  {
+   "fieldname": "additional_comments",
+   "fieldtype": "Small Text",
+   "label": "Additional Comments"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Application Status"
+  },
+  {
+   "default": "Applied",
+   "fieldname": "application_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Applied\nUnder Review\nShortlisted\nInterview Scheduled\nSelected\nRejected\nWithdrawn",
+   "read_only": 1
+  },
+  {
+   "default": "now",
+   "fieldname": "application_date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Application Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reviewed_by",
+   "fieldtype": "Link",
+   "label": "Reviewed By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "review_date",
+   "fieldtype": "Datetime",
+   "label": "Review Date",
+   "read_only": 1
+  },
+  {
+   "description": "For internal team use only",
+   "fieldname": "internal_notes",
+   "fieldtype": "Text",
+   "label": "Internal Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-09-13 12:51:26.536924",
+ "modified_by": "Administrator",
+ "module": "Gen Hrms",
+ "name": "Intern Application",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
