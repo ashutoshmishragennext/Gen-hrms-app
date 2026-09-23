@@ -1,0 +1,484 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-09-12 12:12:47.849768",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_pu08",
+  "amended_from",
+  "intern_details_section",
+  "intern_application",
+  "get_intern_details",
+  "column_break_1",
+  "offer_letter_number",
+  "offer_date",
+  "intern_information_section",
+  "intern_name",
+  "intern_email",
+  "intern_phone",
+  "column_break_2",
+  "intern_address",
+  "institution_name",
+  "field_of_study",
+  "internship_details_section",
+  "department",
+  "position_title",
+  "internship_type",
+  "column_break_3",
+  "start_date",
+  "end_date",
+  "duration_months",
+  "working_hours_section",
+  "working_hours_per_week",
+  "working_days",
+  "work_timings",
+  "column_break_4",
+  "work_location",
+  "office_address",
+  "reporting_manager",
+  "compensation_section",
+  "is_paid_internship",
+  "stipend_amount",
+  "stipend_currency",
+  "column_break_5",
+  "other_benefits",
+  "certificate_provided",
+  "letter_of_recommendation",
+  "terms_conditions_section",
+  "terms_and_conditions",
+  "responsibilities_section",
+  "job_description",
+  "learning_objectives",
+  "acceptance_section",
+  "acceptance_deadline",
+  "response_instructions",
+  "column_break_6",
+  "contact_person",
+  "contact_email",
+  "contact_phone",
+  "status_section",
+  "offer_status",
+  "sent_date",
+  "response_date",
+  "column_break_7",
+  "created_by",
+  "approved_by",
+  "internal_notes",
+  "letter_content_section",
+  "letter_template",
+  "generate_pdf",
+  "send_email"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_pu08",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Intern Offer",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "intern_details_section",
+   "fieldtype": "Section Break",
+   "label": "Intern Details"
+  },
+  {
+   "fieldname": "intern_application",
+   "fieldtype": "Link",
+   "label": "Intern Application",
+   "options": "Intern Application"
+  },
+  {
+   "fieldname": "get_intern_details",
+   "fieldtype": "Button",
+   "label": "Get Intern Details"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "offer_letter_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Offer Letter Number",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "offer_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Offer Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "intern_information_section",
+   "fieldtype": "Section Break",
+   "label": "Intern Information"
+  },
+  {
+   "fetch_from": "intern_application.full_name",
+   "fieldname": "intern_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Intern Name",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "intern_application.email",
+   "fieldname": "intern_email",
+   "fieldtype": "Data",
+   "label": "Email Address",
+   "options": "Email",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "intern_application.phone_number",
+   "fieldname": "intern_phone",
+   "fieldtype": "Data",
+   "label": "Phone Number"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "intern_application.current_address",
+   "fieldname": "intern_address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fetch_from": "intern_application.institution_name",
+   "fieldname": "institution_name",
+   "fieldtype": "Data",
+   "label": "Institution"
+  },
+  {
+   "fetch_from": "intern_application.field_of_study",
+   "fieldname": "field_of_study",
+   "fieldtype": "Data",
+   "label": "Field of Study"
+  },
+  {
+   "fieldname": "internship_details_section",
+   "fieldtype": "Section Break",
+   "label": "Internship Details"
+  },
+  {
+   "fetch_from": "intern_application.preferred_department",
+   "fieldname": "department",
+   "fieldtype": "Select",
+   "label": "Department",
+   "options": "Software Development\nWeb Development\nMobile App Development\nData Science\nUI/UX Design\nDigital Marketing\nHuman Resources\nFinance\nOperations\nOther",
+   "reqd": 1
+  },
+  {
+   "default": "Intern",
+   "fieldname": "position_title",
+   "fieldtype": "Data",
+   "label": "Position Title",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "intern_application.internship_type",
+   "fieldname": "internship_type",
+   "fieldtype": "Select",
+   "label": "Internship Type",
+   "options": "Full-time\nPart-time\nRemote\nHybrid",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "duration_months",
+   "fieldtype": "Int",
+   "label": "Duration (Months)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "working_hours_section",
+   "fieldtype": "Section Break",
+   "label": "Working Hours & Schedule"
+  },
+  {
+   "default": "40",
+   "fieldname": "working_hours_per_week",
+   "fieldtype": "Int",
+   "label": "Working Hours per Week"
+  },
+  {
+   "default": "Monday to Friday",
+   "fieldname": "working_days",
+   "fieldtype": "Select",
+   "label": "Working Days",
+   "options": "Monday to Friday\nMonday to Saturday\nFlexible\nAs per project requirements"
+  },
+  {
+   "default": "9:00 AM - 6:00 PM",
+   "fieldname": "work_timings",
+   "fieldtype": "Data",
+   "label": "Work Timings"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "work_location",
+   "fieldtype": "Select",
+   "label": "Work Location",
+   "options": "Office\nRemote\nHybrid",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.work_location!='Remote'",
+   "fieldname": "office_address",
+   "fieldtype": "Small Text",
+   "label": "Office Address"
+  },
+  {
+   "fieldname": "reporting_manager",
+   "fieldtype": "Link",
+   "label": "Reporting Manager",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "compensation_section",
+   "fieldtype": "Section Break",
+   "label": "Compensation & Benefits"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_paid_internship",
+   "fieldtype": "Check",
+   "label": "Paid Internship"
+  },
+  {
+   "depends_on": "is_paid_internship",
+   "fieldname": "stipend_amount",
+   "fieldtype": "Currency",
+   "label": "Monthly Stipend"
+  },
+  {
+   "default": "INR",
+   "depends_on": "is_paid_internship",
+   "fieldname": "stipend_currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Transport allowance, meal coupons, etc.",
+   "fieldname": "other_benefits",
+   "fieldtype": "Small Text",
+   "label": "Other Benefits"
+  },
+  {
+   "default": "1",
+   "fieldname": "certificate_provided",
+   "fieldtype": "Check",
+   "label": "Certificate of Completion Provided"
+  },
+  {
+   "default": "0",
+   "fieldname": "letter_of_recommendation",
+   "fieldtype": "Check",
+   "label": "Letter of Recommendation (if performance is satisfactory)"
+  },
+  {
+   "fieldname": "terms_conditions_section",
+   "fieldtype": "Section Break",
+   "label": "Terms & Conditions"
+  },
+  {
+   "default": "<p><strong>Terms and Conditions:</strong></p><ol><li>This internship is for learning and development purposes</li><li>The intern agrees to maintain confidentiality of company information</li><li>Regular attendance and punctuality are expected</li><li>The intern will follow company policies and guidelines</li><li>Performance will be evaluated periodically</li><li>Either party can terminate the internship with 1 week notice</li><li>No permanent employment is guaranteed upon completion</li></ol>",
+   "fieldname": "terms_and_conditions",
+   "fieldtype": "Text Editor",
+   "label": "Terms and Conditions"
+  },
+  {
+   "fieldname": "responsibilities_section",
+   "fieldtype": "Section Break",
+   "label": "Roles & Responsibilities"
+  },
+  {
+   "fieldname": "job_description",
+   "fieldtype": "Text Editor",
+   "label": "Job Description & Responsibilities",
+   "reqd": 1
+  },
+  {
+   "description": "What the intern is expected to learn during this internship",
+   "fieldname": "learning_objectives",
+   "fieldtype": "Text",
+   "label": "Learning Objectives"
+  },
+  {
+   "fieldname": "acceptance_section",
+   "fieldtype": "Section Break",
+   "label": "Acceptance Details"
+  },
+  {
+   "fieldname": "acceptance_deadline",
+   "fieldtype": "Date",
+   "label": "Acceptance Deadline",
+   "reqd": 1
+  },
+  {
+   "default": "Please confirm your acceptance by replying to this email or contacting HR department",
+   "fieldname": "response_instructions",
+   "fieldtype": "Small Text",
+   "label": "Response Instructions"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Link",
+   "label": "Contact Person",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "contact_person.prefered_email",
+   "fieldname": "contact_email",
+   "fieldtype": "Data",
+   "label": "Contact Email",
+   "options": "Email"
+  },
+  {
+   "fetch_from": "contact_person.cell_number",
+   "fieldname": "contact_phone",
+   "fieldtype": "Data",
+   "label": "Contact Phone"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status & Tracking"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "offer_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Offer Status",
+   "options": "Draft\nSent\nAccepted\nDeclined\nExpired\nWithdrawn",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sent_date",
+   "fieldtype": "Datetime",
+   "label": "Sent Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "response_date",
+   "fieldtype": "Datetime",
+   "label": "Response Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "user",
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "label": "Created By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User"
+  },
+  {
+   "fieldname": "internal_notes",
+   "fieldtype": "Text",
+   "label": "Internal Notes"
+  },
+  {
+   "fieldname": "letter_content_section",
+   "fieldtype": "Section Break",
+   "label": "Letter Content"
+  },
+  {
+   "fieldname": "letter_template",
+   "fieldtype": "Link",
+   "label": "Letter Template",
+   "options": "Print Format"
+  },
+  {
+   "fieldname": "generate_pdf",
+   "fieldtype": "Button",
+   "label": "Generate PDF"
+  },
+  {
+   "fieldname": "send_email",
+   "fieldtype": "Button",
+   "label": "Send Offer Email"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-09-12 12:19:48.976100",
+ "modified_by": "Administrator",
+ "module": "Gen Hrms",
+ "name": "Intern Offer",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
