@@ -1,7 +1,7 @@
 import json
 
 import frappe
-from frappe.utils import today
+from frappe.utils import get_first_day, get_last_day, nowdate, getdate
 
 
 def get_schedule_rows(snapshot):
@@ -72,200 +72,300 @@ def get_schedule_rows(snapshot):
     return rows
 
 
-def get_team_schedules(employee_ids):
-    """Latest Employee Schedule per employee -> {employee_id: [rows]}"""
-    if not employee_ids:
-        return {}
-
+def _get_employee_schedule(employee_id):
+    """Rows from the employee's most recently modified Employee Schedule."""
     docs = frappe.get_all(
         "Employee Schedule",
-        filters={"employee": ["in", employee_ids]},
-        fields=["employee", "snapshot", "modified"],
+        filters={"employee": employee_id},
+        fields=["snapshot"],
         order_by="modified desc",
-        limit_page_length=0,
+        limit_page_length=1,
     )
+    if not docs:
+        return []
+    return get_schedule_rows(docs[0].snapshot)
 
-    result = {}
-    for d in docs:
-        if d.employee in result:  # newest comes first, skip older ones
-            continue
-        result[d.employee] = get_schedule_rows(d.snapshot)
-    return result
+
+def _fmt_duration(seconds):
+    """custom_duration is a Frappe Duration field -> stored in seconds."""
+    seconds = float(seconds or 0)
+    if seconds <= 0:
+        return "—"
+    hours = seconds / 3600
+    text = f"{hours:.1f}".rstrip("0").rstrip(".")
+    return f"{text}h"
+
+
+def _map_priority(p):
+    p = (p or "").strip()
+    if p == "High":
+        return {"label": "High", "tone": "red"}
+    if p == "Low":
+        return {"label": "Low", "tone": "gray"}
+    return {"label": "Normal", "tone": "blue"}
 
 
 @frappe.whitelist()
-def get_manager_dashboard(from_date=None, to_date=None):
-    """
-    Dashboard data ONLY for employees who are under the logged-in manager
-    (via Employee Additional Manager child table).
-
-    Every count is based on ToDo where owner = employee's user_id.
-    from_date / to_date (YYYY-MM-DD) filter on ToDo.creation. Both optional.
-    """
+def get_employee_dashboard(employee_id=None, from_date=None, to_date=None):
     current_user = frappe.session.user
 
     # ---------------------------------------------------------
-    # 1. Team = employees who have the current user as an additional manager
+    # 1. Find the employee (default: logged-in user)
     # ---------------------------------------------------------
+    if not employee_id:
+        employee_id = frappe.db.get_value(
+            "Employee",
+            {"user_id": current_user, "status": "Active"},
+            "name",
+        )
+
+    if not employee_id:
+        frappe.throw("No active Employee record linked to your user.")
+
+    employee = frappe.db.get_value(
+        "Employee",
+        employee_id,
+        ["name", "employee_name", "user_id", "image", "designation", "department"],
+        as_dict=True,
+    )
+
+    if not employee:
+        frappe.throw(f"Employee {employee_id} not found.")
+
+    employee_user = employee.user_id
+    if not employee_user:
+        frappe.throw("Employee does not have a linked user account.")
+
+    # ---------------------------------------------------------
+    # 2. Permission: self / the employee's manager / admin
+    # ---------------------------------------------------------
+    is_self = employee_user == current_user
+    is_manager = bool(
+        frappe.db.exists(
+            "Employee Additional Manager",
+            {
+                "parent": employee_id,
+                "parenttype": "Employee",
+                "manager_user": current_user,
+            },
+        )
+    )
+    roles = frappe.get_roles(current_user)
+    is_admin = (
+        current_user == "Administrator"
+        or "System Manager" in roles
+        or "Administrator" in roles
+    )
+
+    if not (is_self or is_manager or is_admin):
+        frappe.throw(
+            "You are not allowed to view this employee's dashboard.",
+            frappe.PermissionError,
+        )
+
+    # ---------------------------------------------------------
+    # 3. Date range (filters on ToDo.creation)
+    # ---------------------------------------------------------
+    today = getdate(nowdate())
+
+    from_date = getdate(from_date) if from_date else get_first_day(today)
+    to_date = getdate(to_date) if to_date else get_last_day(today)
+
+    creation_range = [
+        "between",
+        [f"{from_date} 00:00:00", f"{to_date} 23:59:59"],
+    ]
+
+    todos = frappe.get_all(
+        "ToDo",
+        filters={"owner": employee_user, "creation": creation_range},
+        fields=[
+            "name", "status", "priority", "date",
+            "custom_task_name", "custom_duration",
+            "custom_teamdepartment", "custom_deadline",
+            "custom_schdeuled_date", "description",
+        ],
+        order_by="date desc, creation desc",
+        limit_page_length=0,  # fetch all tasks so counts stay accurate
+        ignore_permissions=True,
+    )
+
+    def due_date(t):
+        """Use the deadline if present, otherwise the task date."""
+        if t.custom_deadline:
+            return getdate(t.custom_deadline)
+        if t.date:
+            return getdate(t.date)
+        return None
+
+    tasks = []
+    total_count = closed_count = open_count = 0
+    in_progress_count = cancelled_count = overdue_count = 0
+    high_count = medium_count = low_count = 0
+    on_time_closed = 0
+    total_hours_sec = 0.0
+
+    for t in todos:
+        total_count += 1
+        status = t.status or "Open"
+
+        if t.priority == "High":
+            high_count += 1
+        elif t.priority == "Medium":
+            medium_count += 1
+        elif t.priority == "Low":
+            low_count += 1
+
+        if status == "Closed":
+            closed_count += 1
+            if t.custom_deadline and t.date:
+                if getdate(t.date) <= getdate(t.custom_deadline):
+                    on_time_closed += 1
+        elif status == "Cancelled":
+            cancelled_count += 1
+        elif status == "In Progress":
+            in_progress_count += 1
+        elif status == "Open":
+            open_count += 1
+
+        if status in ("Open", "In Progress"):
+            d = due_date(t)
+            if d and d < today:
+                overdue_count += 1
+
+        total_hours_sec += float(t.custom_duration or 0)
+        pr = _map_priority(t.priority)
+
+        tasks.append({
+            "name": t.name,
+            "title": t.custom_task_name or "Untitled Task",
+            "priority": t.priority or "Medium",
+            "status": status,
+            "duration": _fmt_duration(t.custom_duration),
+            "date": str(t.date) if t.date else "",
+            "deadline": str(t.custom_deadline) if t.custom_deadline else "",
+            "department": t.custom_teamdepartment or "",
+            "description": t.description or "",
+            "label": pr["label"],
+            "tone": pr["tone"],
+            "done": status == "Closed",
+        })
+
+    completion_rate = round((closed_count / total_count) * 100, 1) if total_count else 0
+    on_time_rate = round((on_time_closed / closed_count) * 100, 1) if closed_count else 0
+
+    # ---------------------------------------------------------
+    # 4. Today's tasks (independent of the date filter)
+    # ---------------------------------------------------------
+    today_todos = frappe.get_all(
+        "ToDo",
+        filters={"owner": employee_user, "date": str(today)},
+        fields=["status", "custom_deadline"],
+        limit_page_length=0,
+        ignore_permissions=True,
+    )
+
+    today_total = len(today_todos)
+    today_closed = today_open = today_blocked = 0
+
+    for t in today_todos:
+        status = t.status or "Open"
+        if status == "Closed":
+            today_closed += 1
+        elif status in ("Open", "In Progress"):
+            if t.custom_deadline and getdate(t.custom_deadline) < today:
+                today_blocked += 1
+            else:
+                today_open += 1
+
+    # ---------------------------------------------------------
+    # 5. Team average (for the score's volume factor)
+    # ---------------------------------------------------------
+    team_avg = 0
     team_ids = frappe.get_all(
         "Employee Additional Manager",
         filters={"manager_user": current_user, "parenttype": "Employee"},
         pluck="parent",
         distinct=True,
     )
+    if team_ids:
+        team_users = [
+            u for u in frappe.get_all(
+                "Employee", filters={"name": ["in", team_ids]}, pluck="user_id"
+            ) if u
+        ]
+        if team_users:
+            row = frappe.db.sql(
+                """
+                SELECT AVG(cnt) AS avg_cnt FROM (
+                    SELECT owner, COUNT(*) AS cnt
+                    FROM `tabToDo`
+                    WHERE owner IN %(users)s
+                      AND creation BETWEEN %(f)s AND %(t)s
+                    GROUP BY owner
+                ) x
+                """,
+                {
+                    "users": tuple(team_users),
+                    "f": f"{from_date} 00:00:00",
+                    "t": f"{to_date} 23:59:59",
+                },
+                as_dict=True,
+            )
+            team_avg = float(row[0].avg_cnt) if row and row[0].avg_cnt else 0
 
-    empty = {
-        "summary": {
-            "total_employees": 0,
-            "total_tasks": 0,
-            "open": 0,
-            "closed": 0,
-            "in_progress": 0,
-            "cancelled": 0,
-            "overdue": 0,
-            "completion_rate": 0,
-            "total_hours": 0,
-            "idle_employees": 0,
-        },
-        "priority_summary": {"High": 0, "Medium": 0, "Low": 0},
-        "employees": [],
-    }
+    volume_factor = min(total_count / team_avg, 1.5) * 100 if team_avg > 0 else 100
 
-    if not team_ids:
-        return empty
-
-    employees = frappe.get_all(
-        "Employee",
-        filters={"name": ["in", team_ids], "status": "Active"},
-        fields=[
-            "name",
-            "employee_name",
-            "user_id",
-            "image",
-            "designation",
-            "department",
-            "company_email",
-            "personal_email",
-        ],
+    score = round(
+        (completion_rate * 0.60) + (on_time_rate * 0.25) + (volume_factor * 0.15)
     )
+    score = int(min(score, 100))
 
-    users = [e.user_id for e in employees if e.user_id]
-    schedule_map = get_team_schedules([e.name for e in employees])
+    if score >= 90:
+        tier = "A+"
+    elif score >= 80:
+        tier = "A"
+    elif score >= 70:
+        tier = "B"
+    elif score >= 60:
+        tier = "C"
+    elif score >= 50:
+        tier = "D"
+    else:
+        tier = "E"
 
-    # ---------------------------------------------------------
-    # 2. ToDo stats for all team members in a single query
-    # ---------------------------------------------------------
-    stats = {}
-
-    if users:
-        conditions = ["owner IN %(users)s"]
-        params = {"users": tuple(users), "today": today()}
-
-        if from_date:
-            conditions.append("creation >= %(from_dt)s")
-            params["from_dt"] = f"{from_date} 00:00:00"
-        if to_date:
-            conditions.append("creation <= %(to_dt)s")
-            params["to_dt"] = f"{to_date} 23:59:59"
-
-        rows = frappe.db.sql(
-            f"""
-            SELECT
-                owner,
-                COUNT(*) AS total,
-                SUM(status = 'Open') AS open_count,
-                SUM(status = 'Closed') AS closed_count,
-                SUM(status = 'In Progress') AS in_progress_count,
-                SUM(status = 'Cancelled') AS cancelled_count,
-                SUM(
-                    status = 'Open'
-                    AND COALESCE(DATE(custom_deadline), `date`) IS NOT NULL
-                    AND COALESCE(DATE(custom_deadline), `date`) < %(today)s
-                ) AS overdue_count,
-                SUM(priority = 'High') AS high_count,
-                SUM(priority = 'Medium') AS medium_count,
-                SUM(priority = 'Low') AS low_count,
-                SUM(COALESCE(custom_duration, 0)) AS hours
-            FROM `tabToDo`
-            WHERE {" AND ".join(conditions)}
-            GROUP BY owner
-            """,
-            params,
-            as_dict=True,
-        )
-        stats = {r.owner: r for r in rows}
-
-    # ---------------------------------------------------------
-    # 3. Per-employee result + team summary
-    # ---------------------------------------------------------
-    result = []
-    summary = dict(empty["summary"])
-    priority_summary = {"High": 0, "Medium": 0, "Low": 0}
-
-    for emp in employees:
-        s = stats.get(emp.user_id)
-
-        total = int(s.total) if s else 0
-        open_c = int(s.open_count or 0) if s else 0
-        closed_c = int(s.closed_count or 0) if s else 0
-        in_progress_c = int(s.in_progress_count or 0) if s else 0
-        cancelled_c = int(s.cancelled_count or 0) if s else 0
-        overdue_c = int(s.overdue_count or 0) if s else 0
-        high_c = int(s.high_count or 0) if s else 0
-        medium_c = int(s.medium_count or 0) if s else 0
-        low_c = int(s.low_count or 0) if s else 0
-        hours = float(s.hours or 0) if s else 0.0
-
-        rate = round((closed_c / total) * 100) if total else 0
-
-        result.append(
-            {
-                "employee_id": emp.name,
-                "employee_name": emp.employee_name,
-                "user_id": emp.user_id,
-                "profile_photo": emp.image,
-                "designation": emp.designation or "",
-                "department": emp.department or "",
-                "email": emp.company_email or emp.personal_email or emp.user_id,
-                "total": total,
-                "open": open_c,
-                "closed": closed_c,
-                "in_progress": in_progress_c,
-                "cancelled": cancelled_c,
-                "overdue": overdue_c,
-                "high": high_c,
-                "medium": medium_c,
-                "low": low_c,
-                "hours": round(hours, 2),
-                "completion_rate": rate,
-                "schedule": schedule_map.get(emp.name, []),
-            }
-        )
-
-        summary["total_tasks"] += total
-        summary["open"] += open_c
-        summary["closed"] += closed_c
-        summary["in_progress"] += in_progress_c
-        summary["cancelled"] += cancelled_c
-        summary["overdue"] += overdue_c
-        summary["total_hours"] += hours
-        if total == 0:
-            summary["idle_employees"] += 1
-
-        priority_summary["High"] += high_c
-        priority_summary["Medium"] += medium_c
-        priority_summary["Low"] += low_c
-
-    summary["total_employees"] = len(result)
-    summary["total_hours"] = round(summary["total_hours"], 2)
-    summary["completion_rate"] = (
-        round((summary["closed"] / summary["total_tasks"]) * 100)
-        if summary["total_tasks"]
-        else 0
-    )
+    schedule = _get_employee_schedule(employee_id)
 
     return {
-        "summary": summary,
-        "priority_summary": priority_summary,
-        "employees": result,
+        "user": {
+            "name": employee.employee_name,
+            "image": employee.image,
+            "designation": employee.designation or "",
+            "department": employee.department or "",
+            "date": today.strftime("%a, %d %b %Y"),
+        },
+        "stats": {
+            "planned": today_total,
+            "completed": today_closed,
+            "inProgress": today_open,
+            "blocked": today_blocked,
+            "score": score,
+            "tier": tier,
+            "total": total_count,
+            "open": open_count,
+            "in_progress": in_progress_count,
+            "closed": closed_count,
+            "overdue": overdue_count,
+            "cancelled": cancelled_count,
+            "completion_rate": completion_rate,
+            "on_time_rate": on_time_rate,
+            "total_hours": round(total_hours_sec / 3600, 2),
+        },
+        "priority_summary": {
+            "High": high_count,
+            "Medium": medium_count,
+            "Low": low_count,
+        },
+        "tasks": tasks,
+        "schedule": schedule,
     }
