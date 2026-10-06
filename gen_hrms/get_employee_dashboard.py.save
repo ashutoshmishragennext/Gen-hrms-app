@@ -1,0 +1,73 @@
+Per-employee result + team summary
+    # ---------------------------------------------------------
+    result = []
+    summary = dict(empty["summary"])
+    priority_summary = {"High": 0, "Medium": 0, "Low": 0}
+
+    for emp in employees:
+        s = stats.get(emp.user_id)
+
+        total = int(s.total) if s else 0
+        open_c = int(s.open_count or 0) if s else 0
+        closed_c = int(s.closed_count or 0) if s else 0
+        in_progress_c = int(s.in_progress_count or 0) if s else 0
+        cancelled_c = int(s.cancelled_count or 0) if s else 0
+        overdue_c = int(s.overdue_count or 0) if s else 0
+        high_c = int(s.high_count or 0) if s else 0
+        medium_c = int(s.medium_count or 0) if s else 0
+        low_c = int(s.low_count or 0) if s else 0
+        hours = float(s.hours or 0) if s else 0.0
+
+        rate = round((closed_c / total) * 100) if total else 0
+
+        result.append(
+            {
+                "employee_id": emp.name,
+                "employee_name": emp.employee_name,
+                "user_id": emp.user_id,
+                "profile_photo": emp.image,
+                "designation": emp.designation or "",
+                "department": emp.department or "",
+                "email": emp.company_email or emp.personal_email or emp.user_id,
+                "total": total,
+                "open": open_c,
+                "closed": closed_c,
+                "in_progress": in_progress_c,
+                "cancelled": cancelled_c,
+                "overdue": overdue_c,
+                "high": high_c,
+                "medium": medium_c,
+                "low": low_c,
+                "hours": round(hours, 2),
+                "completion_rate": rate,
+                "schedule": schedule_map.get(emp.name, []),
+            }
+        )
+
+        summary["total_tasks"] += total
+        summary["open"] += open_c
+        summary["closed"] += closed_c
+        summary["in_progress"] += in_progress_c
+        summary["cancelled"] += cancelled_c
+        summary["overdue"] += overdue_c
+        summary["total_hours"] += hours
+        if total == 0:
+            summary["idle_employees"] += 1
+
+        priority_summary["High"] += high_c
+        priority_summary["Medium"] += medium_c
+        priority_summary["Low"] += low_c
+
+    summary["total_employees"] = len(result)
+    summary["total_hours"] = round(summary["total_hours"], 2)
+    summary["completion_rate"] = (
+        round((summary["closed"] / summary["total_tasks"]) * 100)
+        if summary["total_tasks"]
+        else 0
+    )
+
+    return {
+        "summary": summary,
+        "priority_summary": priority_summary,
+        "employees": result,
+    }
